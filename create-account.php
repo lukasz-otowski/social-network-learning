@@ -22,11 +22,20 @@ if (isset($_POST['createaccount'])){
                     
                     //validate email address
                     if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        
+                    if(!DB::query('SELECT email FROM users WHERE email=:email', array(':email'=>$email))){
+                        
+                    
                         //insert data into database
                         DB::query('INSERT INTO users VALUES (\'\', :username, :password, :email)', array(':username'=>$username, ':password'=> 
                         //hash password
                         password_hash($password, PASSWORD_BCRYPT),':email'=>$email));
                         echo 'Success!';
+                        
+                        } else {
+                            echo 'Email in use!';
+                    }
+                        
                     } else {
                         echo 'Invalid email';
                     }
