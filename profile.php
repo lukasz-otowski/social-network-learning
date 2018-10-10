@@ -12,11 +12,8 @@ if (isset($_GET['username'])){
         $followerid = Login::isLoggedIn();
         if(isset($_POST['follow'])){
             
-            
-            
-            
             if($userid != $followerid){
-                if(!DB::query('SELECT follower_id FROM followers WHERE user_id=:userid', array(':userid'=>$userid))){
+                if(!DB::query('SELECT follower_id FROM followers WHERE user_id=:useridd AND follower_id=:followerid', array(':userid'=>$userid, ':followerid'=>$followerid))){
                     if($followerid == 16){
                         DB::query('UPDATE users SET verified=1 WHERE id=:userid', array(':userid'=>$userid));
                     }
@@ -29,7 +26,7 @@ if (isset($_GET['username'])){
         }
         if(isset($_POST['unfollow'])){
             if($userid != $followerid){
-                if(DB::query('SELECT follower_id FROM followers WHERE user_id=:userid', array(':userid'=>$userid))){
+                if(DB::query('SELECT follower_id FROM followers WHERE user_id=:useridd AND follower_id=:followerid', array(':userid'=>$userid, ':followerid'=>$followerid))){
                     if($followerid == 16){
                         DB::query('UPDATE users SET verified=0 WHERE id=:userid', array(':userid'=>$userid));
                     }
@@ -38,17 +35,38 @@ if (isset($_GET['username'])){
                 $isFollowing = False;
             }
         }
-        if(DB::query('SELECT follower_id FROM followers WHERE user_id=:userid', array(':userid'=>$userid))){
+        if(DB::query('SELECT follower_id FROM followers WHERE user_id=:userid AND follower_id=:followerid', array(':userid'=>$userid, ':followerid'=>$followerid))){
             //echo 'Already following!';
             $isFollowing = True;
+        }
+        
+        if(isset($_POST['post'])){
+            $postbody = $_POST['postbody'];
+            $userid = Login::isLoggedIn();
+
+            if(strlen($postbody) > 160 || strlen($postbody) < 1){
+                die('Incorrect length!');
+            }
+
+            DB::query('INSERT INTO posts VALUES (\'\', :postbody, NOW(), :userid, 0)', array(':postbody'=>$postbody, ':userid'=>$userid));
+        }
+        
+        $dbposts = DB::query('SELECT * FROM posts WHERE user_id=:userid ORDER BY id DESC', array(':userid'=>$userid));
+        $posts = "";
+        foreach($dbposts as $p){
+            $posts .= $p['body']."<hr /><br />";
         }
         
     } else {
         die('User not found');
     }
 }
+
 ?>
-<h1><?php echo $username; ?>'s Profile<?php if($verified){echo ' - Verified';} ?></h1>
+<h1>
+    <?php echo $username; ?>'s Profile
+    <?php if($verified){echo ' - Verified';} ?>
+</h1>
 <form action="profile.php?username=<?php echo $username; ?>" method="post">
     <?php
     if($userid != $followerid){
@@ -60,3 +78,11 @@ if (isset($_GET['username'])){
     }
     ?>
 </form>
+<form action="profile.php?username=<?php echo $username; ?>" method="post" >
+    <textarea name="postbody" cols="80" rows="8"></textarea>
+    <input type="submit" name="post" value="Post">
+</form>
+
+<div class="posts">
+    <?php echo $posts; ?>
+</div>
