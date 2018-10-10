@@ -27,7 +27,7 @@ if (isset($_POST['createaccount'])){
                         
                     
                         //insert data into database
-                        DB::query('INSERT INTO users VALUES (\'\', :username, :password, :email)', array(':username'=>$username, ':password'=> 
+                        DB::query('INSERT INTO users VALUES (\'\', :username, :password, :email, \'0\')', array(':username'=>$username, ':password'=> 
                         //hash password
                         password_hash($password, PASSWORD_BCRYPT),':email'=>$email));
                         echo 'Success!';
