@@ -42,19 +42,36 @@ if (isset($_GET['username'])){
         
         if(isset($_POST['post'])){
             $postbody = $_POST['postbody'];
-            $userid = Login::isLoggedIn();
+            $loggedInUserId = Login::isLoggedIn();
 
             if(strlen($postbody) > 160 || strlen($postbody) < 1){
                 die('Incorrect length!');
             }
-
-            DB::query('INSERT INTO posts VALUES (\'\', :postbody, NOW(), :userid, 0)', array(':postbody'=>$postbody, ':userid'=>$userid));
+            if($loggedInUserId == $userid) {
+                
+                DB::query('INSERT INTO posts VALUES (\'\', :postbody, NOW(), :userid, 0)', array(':postbody'=>$postbody, ':userid'=>$userid));
+            }else{
+                die('Incorrect user!');
+            }
+        }
+        
+        if (isset($_GET['postid'])) {
+            if (!DB::query('SELECT user_id FROM post_likes WHERE post_id=:postid AND user_id=:userid', array(':postid'=>$_GET['postid'],':userid'=>$userid))){
+                DB::query('UPDATE posts SET likes=likes+1 WHERE id=:postid', array(':postid'=>$_GET['postid']));
+                DB::query('INSERT INTO post_likes VALUES (\'\', :postid, :userid)', array(':postid'=>$_GET['postid'], ':userid'=>$userid));
+            } else {
+                echo 'Already liked';
+            }
         }
         
         $dbposts = DB::query('SELECT * FROM posts WHERE user_id=:userid ORDER BY id DESC', array(':userid'=>$userid));
         $posts = "";
         foreach($dbposts as $p){
-            $posts .= $p['body']."<hr /><br />";
+            $posts .= htmlspecialchars($p['body'])."
+            <form action='profile.php?username=$username&postid=".$p['id']."'method='post' >
+                <input type='submit' name='like' value='Like'>
+            </form>
+            <hr /><br />";
         }
         
     } else {
