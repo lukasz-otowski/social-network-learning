@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Czas generowania: 17 Paź 2018, 17:21
+-- Czas generowania: 24 Paź 2018, 18:07
 -- Wersja serwera: 10.1.33-MariaDB
 -- Wersja PHP: 7.2.6
 
@@ -21,6 +21,20 @@ SET time_zone = "+00:00";
 --
 -- Baza danych: `social-network-learn`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `comments`
+--
+
+CREATE TABLE `comments` (
+  `id` int(11) NOT NULL,
+  `comment` text NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `posted_at` datetime NOT NULL,
+  `post_id` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -59,8 +73,7 @@ CREATE TABLE `login_tokens` (
 --
 
 INSERT INTO `login_tokens` (`id`, `token`, `user_id`) VALUES
-(10, 'b828d3b5a926294bc10761cc1112da9e331662bd', 15),
-(22, '8d0debe2afc0cdcc29198a4ef1f7ba634e6aefe8', 17);
+(10, 'b828d3b5a926294bc10761cc1112da9e331662bd', 15);
 
 -- --------------------------------------------------------
 
@@ -110,9 +123,11 @@ INSERT INTO `posts` (`id`, `body`, `posted_at`, `user_id`, `likes`) VALUES
 (8, 'hey', '2018-10-10 16:07:59', 17, 0),
 (9, 'hey', '2018-10-10 16:08:47', 17, 0),
 (10, 'what', '2018-10-10 16:08:59', 17, 1),
-(11, 'hey', '2018-10-17 14:18:28', 17, 1),
+(11, 'hey', '2018-10-17 14:18:28', 17, 0),
 (12, 'hey <b>hey </b>', '2018-10-17 14:21:03', 17, 2),
-(13, 'hey <b>hey </b>', '2018-10-17 14:27:35', 17, 0);
+(13, 'hey <b>hey </b>', '2018-10-17 14:27:35', 17, 0),
+(14, 'hello from Post.php', '2018-10-17 17:50:52', 17, 1),
+(15, 'hello from Post.php', '2018-10-17 18:01:28', 17, 1);
 
 -- --------------------------------------------------------
 
@@ -131,10 +146,11 @@ CREATE TABLE `post_likes` (
 --
 
 INSERT INTO `post_likes` (`id`, `post_id`, `user_id`) VALUES
-(8, 11, 17),
 (11, 10, 17),
-(12, 12, 17),
-(13, 12, 18);
+(13, 12, 18),
+(19, 15, 17),
+(21, 14, 17),
+(22, 12, 17);
 
 -- --------------------------------------------------------
 
@@ -163,6 +179,13 @@ INSERT INTO `users` (`id`, `username`, `password`, `email`, `verified`) VALUES
 --
 -- Indeksy dla zrzutów tabel
 --
+
+--
+-- Indeksy dla tabeli `comments`
+--
+ALTER TABLE `comments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `post_id` (`post_id`);
 
 --
 -- Indeksy dla tabeli `followers`
@@ -210,6 +233,12 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT dla tabeli `comments`
+--
+ALTER TABLE `comments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT dla tabeli `followers`
 --
 ALTER TABLE `followers`
@@ -219,7 +248,7 @@ ALTER TABLE `followers`
 -- AUTO_INCREMENT dla tabeli `login_tokens`
 --
 ALTER TABLE `login_tokens`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT dla tabeli `password_tokens`
@@ -231,13 +260,13 @@ ALTER TABLE `password_tokens`
 -- AUTO_INCREMENT dla tabeli `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT dla tabeli `post_likes`
 --
 ALTER TABLE `post_likes`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT dla tabeli `users`
@@ -248,6 +277,12 @@ ALTER TABLE `users`
 --
 -- Ograniczenia dla zrzutów tabel
 --
+
+--
+-- Ograniczenia dla tabeli `comments`
+--
+ALTER TABLE `comments`
+  ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`);
 
 --
 -- Ograniczenia dla tabeli `login_tokens`
